@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../api';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, X, ShoppingCart, Search, Package } from 'lucide-react';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', brand: '', model: '', imei: '', purchasePrice: '', sellingPrice: '', stockQuantity: ''
+    name: '', category: '', brand: '', model: '', imei: '', purchasePrice: '', sellingPrice: '', stockQuantity: ''
   });
   const [sellData, setSellData] = useState({ quantity: 1, salePrice: '' });
   const [editingId, setEditingId] = useState(null);
@@ -17,7 +19,17 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/categories');
+      setCategories(res.data);
+    } catch (err) {
+      console.error('Failed to fetch categories');
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -32,6 +44,7 @@ const Products = () => {
     p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.category?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.imei.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -47,7 +60,7 @@ const Products = () => {
       }
       setIsModalOpen(false);
       setEditingId(null);
-      setFormData({ name: '', brand: '', model: '', imei: '', purchasePrice: '', sellingPrice: '', stockQuantity: '' });
+      setFormData({ name: '', category: '', brand: '', model: '', imei: '', purchasePrice: '', sellingPrice: '', stockQuantity: '' });
       fetchProducts();
     } catch (err) {
       toast.error('Error saving product');
@@ -104,7 +117,7 @@ const Products = () => {
           <p className="text-sm font-semibold text-slate-500 mt-1">Manage stock levels, edit details, and process sales.</p>
         </div>
         <button
-          onClick={() => { setEditingId(null); setFormData({ name: '', brand: '', model: '', imei: '', purchasePrice: '', sellingPrice: '', stockQuantity: '' }); setIsModalOpen(true); }}
+          onClick={() => { setEditingId(null); setFormData({ name: '', category: '', brand: '', model: '', imei: '', purchasePrice: '', sellingPrice: '', stockQuantity: '' }); setIsModalOpen(true); }}
           className="w-full md:w-auto flex items-center justify-center space-x-2 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-7 py-3.5 rounded-2xl hover:from-indigo-500 hover:to-violet-500 transition-all shadow-[0_8px_20px_-6px_rgba(79,70,229,0.4)] hover:-translate-y-0.5 font-bold"
         >
           <Plus className="w-5 h-5" />
@@ -136,6 +149,7 @@ const Products = () => {
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-xs font-bold uppercase tracking-widest">
                 <th className="p-6 pl-8">Product Details</th>
+                <th className="p-6">Category</th>
                 <th className="p-6">Identifiers</th>
                 <th className="p-6">Pricing</th>
                 <th className="p-6 text-center">Stock</th>
@@ -155,6 +169,11 @@ const Products = () => {
                         <span className="text-xs font-bold text-slate-400 mt-0.5">{p.brand}</span>
                       </div>
                     </div>
+                  </td>
+                  <td className="p-6">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase tracking-tighter">
+                      {p.category || 'N/A'}
+                    </span>
                   </td>
                   <td className="p-6">
                     <div className="font-bold text-slate-700">{p.model}</div>
@@ -217,6 +236,24 @@ const Products = () => {
                 <div className="col-span-1 md:col-span-2">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Product Name</label>
                   <input type="text" required className="w-full px-5 py-4 border border-slate-200/80 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-bold text-slate-800 bg-slate-50 transition-all" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="e.g. iPhone 15 Pro Max" />
+                </div>
+                <div className="col-span-1 md:col-span-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest">Category</label>
+                    <Link to="/categories" className="text-[10px] font-bold text-indigo-600 hover:text-indigo-500 underline uppercase tracking-widest">Manage</Link>
+                  </div>
+                  <select 
+                    required 
+                    className="w-full px-5 py-4 border border-slate-200/80 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none font-bold text-slate-800 bg-slate-50 transition-all appearance-none" 
+                    value={formData.category} 
+                    onChange={e => setFormData({...formData, category: e.target.value})}
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(cat => (
+                      <option key={cat._id} value={cat.name}>{cat.name}</option>
+                    ))}
+                    {categories.length === 0 && <option disabled>No categories found - Please add one</option>}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Brand</label>

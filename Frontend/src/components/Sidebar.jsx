@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, BarChart3, Store, X } from 'lucide-react';
+import { LayoutDashboard, Package, BarChart3, Store, X, Tag } from 'lucide-react';
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const links = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Products', path: '/products', icon: Package },
+    { name: 'Categories', path: '/categories', icon: Tag },
     { name: 'Reports', path: '/reports', icon: BarChart3 },
   ];
 
