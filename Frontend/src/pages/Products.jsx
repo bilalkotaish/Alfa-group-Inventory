@@ -144,7 +144,55 @@ const Products = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* Mobile Card Layout */}
+        <div className="block md:hidden p-4 space-y-4">
+          {filteredProducts.map(p => (
+            <div key={p._id} className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-black text-lg border border-indigo-100/50">
+                    {p.name.charAt(0)}
+                  </div>
+                  <div>
+                    <span className="font-extrabold text-slate-900 text-sm block">{p.name}</span>
+                    <span className="text-xs font-bold text-slate-400">{p.brand}</span>
+                  </div>
+                </div>
+                <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${p.stockQuantity > 5 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : p.stockQuantity > 0 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                  {p.stockQuantity} Unit{p.stockQuantity !== 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase">{p.category || 'N/A'}</span>
+                {p.model && <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">{p.model}</span>}
+                {p.imei && <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-bold font-mono bg-slate-50 text-slate-400 border border-slate-100">{p.imei}</span>}
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                <div className="flex gap-4">
+                  <div><span className="text-[10px] font-bold text-slate-400 block uppercase">Buy</span><span className="text-sm font-black text-slate-700">${p.purchasePrice}</span></div>
+                  <div><span className="text-[10px] font-bold text-slate-400 block uppercase">Sell</span><span className="text-sm font-black text-indigo-600">${p.sellingPrice}</span></div>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => openSellModal(p)} className="p-2.5 text-indigo-600 bg-indigo-50 border border-indigo-100 rounded-xl transition-all" title="Record Sale"><ShoppingCart className="w-4 h-4" /></button>
+                  <button onClick={() => openEditModal(p)} className="p-2.5 text-slate-600 bg-slate-50 border border-slate-200 rounded-xl transition-all" title="Edit Product"><Edit2 className="w-4 h-4" /></button>
+                  <button onClick={() => handleDelete(p._id)} className="p-2.5 text-rose-600 bg-rose-50 border border-rose-100 rounded-xl transition-all" title="Delete Product"><Trash2 className="w-4 h-4" /></button>
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredProducts.length === 0 && (
+            <div className="p-16 text-center">
+              <div className="flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mb-4 shadow-sm"><Package className="w-8 h-8 text-slate-400" /></div>
+                <h3 className="text-lg font-extrabold text-slate-900 mb-1">Inventory Empty</h3>
+                <p className="text-slate-500 font-medium text-sm">No products found.</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Desktop Table Layout */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="bg-slate-50/50 border-b border-slate-100 text-slate-400 text-xs font-bold uppercase tracking-widest">
@@ -205,7 +253,7 @@ const Products = () => {
               ))}
               {filteredProducts.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="p-20 text-center">
+                  <td colSpan="6" className="p-20 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <div className="w-24 h-24 bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center mb-5 shadow-sm">
                         <Package className="w-10 h-10 text-slate-400" />
@@ -223,15 +271,15 @@ const Products = () => {
 
       {/* Modals with Glassmorphism */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden transform transition-all border border-slate-100">
-            <div className="flex justify-between items-center p-8 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">{editingId ? 'Edit Product Details' : 'Register New Product'}</h2>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-end sm:items-center justify-center z-[100] p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto transform transition-all border border-slate-100">
+            <div className="flex justify-between items-center p-5 sm:p-8 border-b border-slate-100 bg-slate-50/50 sticky top-0 z-10">
+              <h2 className="text-lg sm:text-2xl font-extrabold text-slate-900 tracking-tight">{editingId ? 'Edit Product Details' : 'Register New Product'}</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-rose-500 bg-white border border-slate-200 p-2.5 rounded-full shadow-sm transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="p-8">
+            <form onSubmit={handleSubmit} className="p-5 sm:p-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="col-span-1 md:col-span-2">
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Product Name</label>
@@ -292,20 +340,20 @@ const Products = () => {
       )}
 
       {isSellModalOpen && selectedProduct && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-[100] p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">
-            <div className="flex justify-between items-center p-8 border-b border-slate-100 bg-indigo-50/50">
-              <h2 className="text-2xl font-extrabold text-slate-900">Record Sale</h2>
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-end sm:items-center justify-center z-[100] p-0 sm:p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-t-[2rem] sm:rounded-[2rem] shadow-2xl w-full max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto transform transition-all border border-slate-100">
+            <div className="flex justify-between items-center p-5 sm:p-8 border-b border-slate-100 bg-indigo-50/50 sticky top-0 z-10">
+              <h2 className="text-lg sm:text-2xl font-extrabold text-slate-900">Record Sale</h2>
               <button onClick={() => setIsSellModalOpen(false)} className="text-slate-400 hover:text-indigo-600 bg-white border border-slate-200 p-2.5 rounded-full shadow-sm transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSellSubmit} className="p-8">
-              <div className="mb-8 p-6 bg-gradient-to-br from-indigo-900 to-violet-900 rounded-2xl shadow-inner relative overflow-hidden text-white">
+            <form onSubmit={handleSellSubmit} className="p-5 sm:p-8">
+              <div className="mb-6 sm:mb-8 p-4 sm:p-6 bg-gradient-to-br from-indigo-900 to-violet-900 rounded-2xl shadow-inner relative overflow-hidden text-white">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-bl-full blur-xl pointer-events-none"></div>
                 <p className="text-[10px] font-bold text-indigo-200 uppercase tracking-widest mb-2 relative z-10">Selected Product</p>
-                <p className="font-black text-2xl relative z-10">{selectedProduct.name}</p>
-                <div className="flex justify-between mt-4 text-sm font-bold relative z-10">
+                <p className="font-black text-xl sm:text-2xl relative z-10">{selectedProduct.name}</p>
+                <div className="flex justify-between mt-3 sm:mt-4 text-xs sm:text-sm font-bold relative z-10">
                   <span className="text-indigo-200/80">Model: {selectedProduct.model}</span>
                   <span className="bg-white/20 px-2.5 py-1 rounded-lg backdrop-blur-md">{selectedProduct.stockQuantity} in stock</span>
                 </div>
@@ -322,9 +370,9 @@ const Products = () => {
                 </div>
               </div>
               
-              <div className="mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-100 flex justify-between items-center">
-                <span className="font-bold text-slate-500 uppercase tracking-wider text-sm">Total Revenue:</span>
-                <span className="font-black text-3xl text-indigo-600">${(sellData.quantity * sellData.salePrice) || 0}</span>
+              <div className="mt-6 sm:mt-8 p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2">
+                <span className="font-bold text-slate-500 uppercase tracking-wider text-xs sm:text-sm">Total Revenue:</span>
+                <span className="font-black text-2xl sm:text-3xl text-indigo-600">${(sellData.quantity * sellData.salePrice) || 0}</span>
               </div>
 
               <div className="mt-8 flex flex-col-reverse sm:flex-row justify-end sm:space-x-4 gap-4 sm:gap-0">
